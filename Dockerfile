@@ -13,8 +13,12 @@ RUN apt-get update && \
     apt-get clean && \
     rm -rf /var/lib/apt/lists/*
 
-COPY init.sql /init.sql
+COPY init.sql /docker-entrypoint-initdb.d/init.sql
 
-# Entrypoint script
-COPY custom-entrypoint.sh /docker-entrypoint-init.d/custom-entrypoint.sh
-RUN chmod +x /docker-entrypoint-init.d/custom-entrypoint.sh
+# Password-reset entrypoint: runs on every container start so the postgres
+# user password always matches POSTGRES_PASSWORD, even with an existing volume.
+COPY reset-password.sh /usr/local/bin/reset-password.sh
+RUN chmod +x /usr/local/bin/reset-password.sh
+
+ENTRYPOINT ["reset-password.sh"]
+CMD ["postgres"]
