@@ -15,6 +15,11 @@ RUN apt-get update && \
 
 COPY init.sql /init.sql
 
-# Entrypoint script
+# Init SQL for first-time setup
 COPY custom-entrypoint.sh /docker-entrypoint-init.d/custom-entrypoint.sh
 RUN chmod +x /docker-entrypoint-init.d/custom-entrypoint.sh
+
+# Startup script — runs on every boot, resets password to match env var
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+CMD ["/start.sh"]
